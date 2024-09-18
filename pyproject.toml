@@ -15,3 +15,156 @@ import_heading_firstparty="Sematic"
 import_heading_thirdparty="Third-party"
 known_third_party = ["flask", "psycopg2", "matplotlib", "cloudpickle"]
 multi_line_output = 3
+
+
+[tool.poetry]
+name = "sematic"
+version = "0.39.2"
+license = "Apache License 2.0"
+description = "An open-source ML pipeline development platform"
+homepage = "https://sematic.dev"
+readme = "README.md"
+authors = ["Sematic AI, Inc."]
+maintainers = ["Sematic AI <support@sematic.dev>"]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Visualization",
+    "Typing :: Typed",
+]
+
+[tool.poetry.scripts]
+sematic = "sematic.cli.main:cli"
+
+[tool.poetry.dependencies]
+python = ">=3.10, <3.13"
+
+Cython = "0.29.33"
+requests = "*"
+flask = "*"
+flask-cors = "*"
+werkzeug = "*"
+sqlalchemy = "<2.0.0"
+asgiref = "*"
+starlette = "*"
+uvicorn = { version = "*", extras = ["standard"] }
+python-socketio = "*"
+google-auth = "*"
+python-dateutil = "*"
+websocket-client = "*"
+click = "*"
+pyyaml = "*"
+cloudpickle = "*"
+kubernetes = "*"
+python-magic = "*"
+
+# maybe extra?
+google-cloud-storage = "*"
+boto3 = "*"
+docker = "*"
+
+# types from requirements
+snowflake-connector-python = "*"
+pyOpenSSL = "*"
+pyarrow = ">=12.0.0"
+git-python = "*"
+
+# maybe dev?
+ipython = "*"
+
+# examples
+# torch==1.13.1
+# torchvision==0.14.1
+# pytorch-lightning
+# ray-lightning
+# torchmetrics
+# plotly
+# pandas
+# pandas-stubs
+# seaborn
+# matplotlib
+# statsmodels
+# scikit-learn
+# numpy>=1.24.0
+# xgboost
+# accelerate
+# datasets>=2.12.0
+# huggingface-hub
+# peft
+# transformers
+# gradio
+# trafilatura
+# cohere
+# openai
+
+
+# # todo: extra
+# [tool.poetry.dependencies.group.cifar-classification]
+# optional = true
+
+# [tool.poetry.dependencies.group.cifar-classification]
+#         "numpy",
+#         "ray",
+#         "torch",
+#         "torchvision",
+#         "torchmetrics",
+#         "pillow",
+#         "plotly",
+
+# # todo: extra
+# [tool.poetry.dependencies.group.lightning-resnet]
+# optional = true
+# [tool.poetry.dependencies.group.lightning-resnet]
+#         "boto3",
+#         "pandas",
+#         "pillow",
+#         "plotly",
+#         "pytorch-lightning",
+#         "ray",
+#         "ray-lightning",
+#         "torch",
+#         "torchmetrics",
+#         "torchvision",
+
+# # todo: extra
+# [tool.poetry.dependencies.group.pytorch]
+# optional = true
+# [tool.poetry.dependencies.group.pytorch]
+#     "torch",
+#     "torchvision",
+#     "torchmetrics",
+#     "plotly",
+#     "pandas",
+#     "scikit-learn",
+
+# # todo: extra
+# [tool.poetry.dependencies.group.summarization-finetune]
+# optional = true
+# [tool.poetry.dependencies.group.summarization-finetune]
+#     "accelerate",
+#     "datasets",
+#     "gradio",
+#     "huggingface-hub",
+#     "peft",
+#     "torch",
+#     "transformers",
+
+# # todo: extra
+# [tool.poetry.dependencies.group.google-storage]
+# optional = true
+# [tool.poetry.dependencies.group.google-starage]
+# "google-cloud-storage",
+
+# # todo: extra
+# [tool.poetry.dependencies.group.s3-storage]
+# optional = true
+# [tool.poetry.dependencies.group.s3-starage]
+# "boto3"
+
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
