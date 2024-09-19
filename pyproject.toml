@@ -19,7 +19,7 @@ multi_line_output = 3
 
 [tool.poetry]
 name = "sematic"
-version = "0.39.2"
+version = "0.139.1"
 license = "Apache License 2.0"
 description = "An open-source ML pipeline development platform"
 homepage = "https://sematic.dev"
@@ -41,130 +41,127 @@ sematic = "sematic.cli.main:cli"
 [tool.poetry.dependencies]
 python = ">=3.10, <3.13"
 
-Cython = "0.29.33"
-requests = "*"
-flask = "*"
-flask-cors = "*"
-werkzeug = "*"
-sqlalchemy = "<2.0.0"
-asgiref = "*"
-starlette = "*"
-uvicorn = { version = "*", extras = ["standard"] }
-python-socketio = "*"
-google-auth = "*"
-python-dateutil = "*"
-websocket-client = "*"
-click = "*"
-pyyaml = "*"
-cloudpickle = "*"
-kubernetes = "*"
-python-magic = "*"
+# DB
+sqlalchemy = ">=2.0"
+psycopg2-binary = "*"
 
-# maybe extra?
-google-cloud-storage = "*"
-boto3 = "*"
-docker = "*"
+# Code
+pyyaml = "6.0.1"
 
-# types from requirements
-snowflake-connector-python = "*"
-pyOpenSSL = "*"
-pyarrow = ">=12.0.0"
+# Git integration
 git-python = "*"
 
-# maybe dev?
+# Build system
+docker = "*"
+
+# Client
+websocket-client = "*"
+python-socketio = "*"
+
+# API server
+flask = "*"
+flask-cors = "*"
+cloudpickle = "*"
+requests = "*"
+werkzeug = "*"
+python-dateutil = "*"
+starlette = "*"
+google-auth = "*"
+uvicorn = { version = "*", extras = ["standard"] }
+asgiref = "*"
+
+# CLI
+click = "*"
+
+# Types
+snowflake-connector-python = "*"
+pyopenssl = "*"
+pyarrow = ">=12.0.0"
+
+# Cloud execution
+kubernetes = "*"
+boto3 = "*"
+google-cloud-storage = "*"
+python-magic = "*"
+
+
+[tool.poetry.group.dev.dependencies]
+# Tests
+pytest = "7.1.1"
+testing-postgresql = "*"
+coveragepy = { git = "https://github.com/ulfjack/coveragepy.git", branch = "lcov-support" }
+
+# System
+debugpy = "*"
 ipython = "*"
 
-# examples
-# torch==1.13.1
-# torchvision==0.14.1
-# pytorch-lightning
-# ray-lightning
-# torchmetrics
-# plotly
-# pandas
-# pandas-stubs
-# seaborn
-# matplotlib
-# statsmodels
-# scikit-learn
-# numpy>=1.24.0
-# xgboost
-# accelerate
-# datasets>=2.12.0
-# huggingface-hub
-# peft
-# transformers
-# gradio
-# trafilatura
-# cohere
-# openai
+# Code
+pyright = "*"
+isort = "*"
 
+[tool.poetry.group.examples]
+optional = true
 
-# # todo: extra
-# [tool.poetry.dependencies.group.cifar-classification]
-# optional = true
+[tool.poetry.group.examples.dependencies]
+torch = "1.13.1"
+torchvision = "0.14.1"
+pytorch-lightning = "*"
+ray-lightning = "*"
+torchmetrics = "*"
+plotly = "*"
+pandas = "*"
+pandas-stubs = "*"
+seaborn = "*"
+matplotlib = "*"
+statsmodels = "*"
+scikit-learn = "*"
+numpy = ">=1.24.0"
+xgboost = "*"
+accelerate = "*"
+datasets = ">=2.12.0"
+huggingface-hub = "*"
+peft = "*"
+transformers = "*"
+gradio = "*"
+trafilatura = "*"
+cohere = "*"
+openai = "*"
 
-# [tool.poetry.dependencies.group.cifar-classification]
-#         "numpy",
-#         "ray",
-#         "torch",
-#         "torchvision",
-#         "torchmetrics",
-#         "pillow",
-#         "plotly",
+[tool.poetry.group.ray]
+optional = true
 
-# # todo: extra
-# [tool.poetry.dependencies.group.lightning-resnet]
-# optional = true
-# [tool.poetry.dependencies.group.lightning-resnet]
-#         "boto3",
-#         "pandas",
-#         "pillow",
-#         "plotly",
-#         "pytorch-lightning",
-#         "ray",
-#         "ray-lightning",
-#         "torch",
-#         "torchmetrics",
-#         "torchvision",
+[tool.poetry.group.ray.dependencies]
+ray = { version = ">=2.3.0", extras = ["default", "air"] }
+cython = "0.29.33"
 
-# # todo: extra
-# [tool.poetry.dependencies.group.pytorch]
-# optional = true
-# [tool.poetry.dependencies.group.pytorch]
-#     "torch",
-#     "torchvision",
-#     "torchmetrics",
-#     "plotly",
-#     "pandas",
-#     "scikit-learn",
-
-# # todo: extra
-# [tool.poetry.dependencies.group.summarization-finetune]
-# optional = true
-# [tool.poetry.dependencies.group.summarization-finetune]
-#     "accelerate",
-#     "datasets",
-#     "gradio",
-#     "huggingface-hub",
-#     "peft",
-#     "torch",
-#     "transformers",
-
-# # todo: extra
-# [tool.poetry.dependencies.group.google-storage]
-# optional = true
-# [tool.poetry.dependencies.group.google-starage]
-# "google-cloud-storage",
-
-# # todo: extra
-# [tool.poetry.dependencies.group.s3-storage]
-# optional = true
-# [tool.poetry.dependencies.group.s3-starage]
-# "boto3"
-
-
+[tool.poetry.extras]
+ray = ["ray", "cython"]
+examples = [
+  "torch",
+  "torchvision",
+  "pytorch-lightning",
+  "ray-lightning",
+  "torchmetrics",
+  "plotly",
+  "pandas",
+  "pandas-stubs",
+  "seaborn",
+  "matplotlib",
+  "statsmodels",
+  "scikit-learn",
+  "numpy",
+  "xgboost",
+  "accelerate",
+  "datasets",
+  "huggingface-hub",
+  "peft",
+  "transformers",
+  "gradio",
+  "trafilatura",
+  "cohere",
+  "openai",
+]
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
