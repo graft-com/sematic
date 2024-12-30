@@ -5,6 +5,14 @@ sematic_py_lib(
 )
 
 sematic_py_lib(
+    name = "context_var",
+    srcs = ["context_var.py"],
+    deps = [
+        "//sematic/utils:typeutils",
+    ],
+)
+
+sematic_py_lib(
     name = "daemonize",
     srcs = ["daemonize.py"],
     deps = [],
@@ -101,5 +109,11 @@ sematic_py_lib(
 sematic_py_lib(
     name = "types",
     srcs = ["types.py"],
+    deps = [],
+)
+
+sematic_py_lib(
+    name = "typeutils",
+    srcs = ["typeutils.py"],
     deps = [],
 )
