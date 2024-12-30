@@ -7,6 +7,14 @@ pytest_test(
 )
 
 pytest_test(
+    name = "test_context_var",
+    srcs = ["test_context_var.py"],
+    deps = [
+        "//sematic/utils:context_var",
+    ],
+)
+
+pytest_test(
     name = "test_git",
     srcs = ["test_git.py"],
     deps = [

@@ -1,11 +1,17 @@
 # Standard Library
 from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass, field
 from importlib import import_module
 from typing import Any, List, Optional, Type
 
 # Sematic
 from sematic.abstract_future import AbstractFuture
+from sematic.utils.context_var import (
+    NOT_SET,
+    get_ctx_var_value_with_fallback,
+    temp_set_context_vars,
+)
 from sematic.utils.exceptions import NotInSematicFuncError
 
 FUTURE_ALGEBRA_DOC_LINK = "https://docs.sematic.dev/diving-deeper/future-algebra"
@@ -65,7 +71,7 @@ class SematicContext:
     private: PrivateContext
 
 
-_current_context: Optional[SematicContext] = None
+_current_context: ContextVar[SematicContext] = ContextVar("current_sematic_context")
 
 
 @contextmanager
@@ -79,9 +85,8 @@ def set_context(ctx: SematicContext):
     ctx:
         The context that the function should be executed with
     """
-    global _current_context
-
-    if _current_context is not None:
+    try:
+        context()
         raise RuntimeError(
             f"You have called runner.run(...) within a Sematic func. Usually people "
             f"do this when they have a future object and want it to be resolved to "
@@ -91,15 +96,10 @@ def set_context(ctx: SematicContext):
             f"Sematic will ensure that the future is resolved before it starts the "
             f"new func. For more information, read {FUTURE_ALGEBRA_DOC_LINK}"
         )
-
-    if not isinstance(ctx, SematicContext):
-        raise ValueError(f"Expecting a `SematicContext`, got: {ctx}")
-    _current_context = ctx
-
-    try:
+    except NotInSematicFuncError:
+        pass
+    with temp_set_context_vars({_current_context: ctx}):
         yield
-    finally:
-        _current_context = None
 
 
 def context() -> SematicContext:
@@ -119,10 +119,11 @@ def context() -> SematicContext:
     NotInSematicFuncError:
         If this function is called outside the execution of a Sematic function.
     """
-    global _current_context
-    if _current_context is None:
-        raise NotInSematicFuncError(
-            "context() must be called from within the execution of a Sematic function, "
-            "in the root process that function was invoked from."
-        )
-    return _current_context
+
+    current_context = get_ctx_var_value_with_fallback(_current_context)
+    if isinstance(current_context, SematicContext):
+        return current_context
+    raise NotInSematicFuncError(
+        "context() must be called from within the execution of a Sematic function, "
+        "in the root process that function was invoked from."
+    )
