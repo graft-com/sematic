@@ -42,6 +42,8 @@ def temp_set_context_vars(context_vars_to_values: dict[ContextVar[T], T]) -> Ite
     }
     for context_var, new_value in context_vars_to_values.items():
         context_var.set(new_value)
-    yield
-    for context_var, prior_value in prior_values.items():
-        context_var.set(prior_value)
+    try:
+        yield
+    finally:
+        for context_var, prior_value in prior_values.items():
+            context_var.set(prior_value)
