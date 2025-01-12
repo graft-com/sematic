@@ -8,6 +8,7 @@ from contextvars import ContextVar
 # Graft
 from sematic.utils.context_var import temp_set_context_vars
 
+
 _DEFAULT_VALUE = 0
 _test_ctx_var: ContextVar[int] = ContextVar("test_ctx_var", default=_DEFAULT_VALUE)
 
