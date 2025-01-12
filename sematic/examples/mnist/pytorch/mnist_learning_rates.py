@@ -2,6 +2,7 @@
 This is an example implementation of the MNIST learning rates pipeline in PyTorch
 on Sematic, using the CloudResolver.
 """
+
 # Standard Library
 # MNIST example
 import argparse
@@ -15,6 +16,7 @@ from sematic.examples.mnist.pytorch.pipeline import (
     TrainConfig,
     scan_learning_rate,
 )
+
 
 logging.basicConfig(level=logging.INFO)
 

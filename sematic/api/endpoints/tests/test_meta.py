@@ -8,10 +8,10 @@ import sqlalchemy
 # Sematic
 import sematic.api.endpoints.meta  # noqa: F401
 from sematic.api.app import sematic_api  # noqa: F401
-from sematic.api.tests.fixtures import (  # noqa: F401
-    mock_requests,
-    mock_server_settings,
-    test_client,
+from sematic.api.tests.fixtures import (
+    mock_requests,  # noqa: F401
+    mock_server_settings,  # noqa: F401
+    test_client,  # noqa: F401
 )
 from sematic.config.server_settings import ServerSettingsVar
 from sematic.db.db import DB

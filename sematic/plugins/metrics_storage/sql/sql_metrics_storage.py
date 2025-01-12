@@ -5,9 +5,8 @@ from typing import Dict, List, Sequence, Tuple, Type
 
 # Third-party
 import sqlalchemy.exc
-from sqlalchemy import Integer
+from sqlalchemy import Integer, func
 from sqlalchemy import cast as sql_cast
-from sqlalchemy import func
 
 # Sematic
 from sematic.abstract_plugin import (
@@ -30,6 +29,7 @@ from sematic.plugins.abstract_metrics_storage import (
 from sematic.plugins.metrics_storage.sql.models.metric_label import MetricLabel
 from sematic.plugins.metrics_storage.sql.models.metric_value import MetricValue
 from sematic.utils.hashing import get_str_sha1_digest
+
 
 logger = logging.getLogger(__name__)
 
@@ -186,7 +186,10 @@ class SQLMetricsStorage(AbstractMetricsStorage, AbstractPlugin):
                     query = query.group_by(*group_by_clauses)  # type: ignore
 
                 if rollup == "auto":
-                    field_ = func.extract("epoch", MetricValue.metric_time)
+                    field_ = func.extract(  # type: ignore
+                        "epoch",
+                        MetricValue.metric_time,
+                    )
                     query = query.order_by(field_).add_columns(field_)  # type: ignore
                     record_count = query.group_by(field_).count()  # type: ignore
 

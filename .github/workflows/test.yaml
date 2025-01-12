@@ -1,0 +1,220 @@
+name: CI Validations
+
+on:
+  push
+
+jobs:
+  test-python:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # 3.9: minimum version supported
+        # 3.12 maximum version that supports all dependencies required for examples
+        # 3.13: maximum version supported
+        py-version: ["3.9", "3.12", "3.13"]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Py-prep
+        run: make py-prep PY_VERSION=${{ matrix.py-version }}
+      - name: Check Format
+        run: uvx ruff format --check
+      - name: Lint
+        run: uvx ruff check --fix sematic
+      - name: MyPy
+        # Use 3.12 for type checking because 3.13 doesn't have all
+        # example libraries.
+        if: matrix.py-version == '3.12'
+        run: uv run mypy -p sematic --disable-error-code import-untyped
+      - name: Test
+        run: |
+          source .venv/bin/activate
+          python3 -c "import sys; print(sys.version)"
+          pytest
+      - name: Check Schemas
+        if: matrix.py-version == '3.13'
+        run: git checkout . && make migrate_up_sqlite && make update-schema && git diff --exit-code
+      - name: Wheel
+        if: matrix.py-version == '3.13'
+        run: |
+          make ui
+          make uv-wheel
+      - uses: actions/upload-artifact@v4
+        if: matrix.py-version == '3.13'
+        with:
+          name: sematic-wheel
+          path: "./dist/sematic-*.whl"
+          retention-days: 10
+      - uses: actions/upload-artifact@v4
+        if: matrix.py-version == '3.13'
+        with:
+          name: sematic-wheel-test
+          path: "sematic/tests/integration/test_pip_install.sh"
+          retention-days: 1
+  test-install:
+    needs: test-python
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: sematic-wheel
+          path: "./dist"
+      - uses: actions/download-artifact@v4
+        with:
+          name: sematic-wheel-test
+          path: "./"
+      - name: Test and Install Wheel
+        run: "bash test_pip_install.sh"
+
+  nodejs_init:
+    runs-on: ubuntu-latest
+    container:
+      image: cypress/browsers:22.12.0
+      options: --user 0
+    outputs:
+      projectFolder: ${{ steps.envvar.outputs.PROJECT_FOLDER }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: npm install
+        run: npm install
+        working-directory: ./sematic/ui
+      - name: write env vars
+        id: envvar
+        run: |
+          echo "PROJECT_FOLDER=$(pwd)" >> $GITHUB_ENV
+          echo "PROJECT_FOLDER=$(pwd)" >> "$GITHUB_OUTPUT"
+          echo "TEMP_DIR=$(mktemp -d)" >> $GITHUB_ENV
+      - name: Tar files
+        # This step is for perserving the file permissions (rwx)
+        run: |
+          tar -czf $TEMP_DIR/cypress.tar.gz $CYPRESS_CACHE_FOLDER
+          tar -czf $TEMP_DIR/code.tar.gz $PROJECT_FOLDER
+      - name: Persist
+        uses: actions/upload-artifact@v4
+        with:
+          name: nodejs-cache
+          path: |
+            ${{ env.TEMP_DIR }}
+
+  
+  nodejs-lint:
+    needs: [nodejs_init]
+    runs-on: ubuntu-latest
+    container:
+      image: cypress/browsers:22.12.0
+      options: --user 0
+    steps:
+      - name: write env vars
+        run: echo "TEMP_DIR=$(mktemp -d)" >> $GITHUB_ENV
+      - uses: actions/download-artifact@v4
+        with:
+          name: nodejs-cache
+          path: ${{ env.TEMP_DIR }}
+      - name: Extract
+        run: |
+          mkdir -p $CYPRESS_CACHE_FOLDER
+          PROJECT_FOLDER=${{ needs.nodejs_init.outputs.projectFolder }}
+          mkdir -p $PROJECT_FOLDER
+          tar -xzf $TEMP_DIR/cypress.tar.gz -C /
+          tar -xzf $TEMP_DIR/code.tar.gz -C /
+      - name: lint
+        run: npm run lint
+        working-directory: sematic/ui
+  
+
+  nodejs-unit-test:
+    needs: [nodejs_init]
+    runs-on: ubuntu-latest
+    container:
+      image: cypress/browsers:22.12.0
+      options: --user 0
+    steps:
+      - name: write env vars
+        run: echo "TEMP_DIR=$(mktemp -d)" >> $GITHUB_ENV
+      - uses: actions/download-artifact@v4
+        with:
+          name: nodejs-cache
+          path: ${{ env.TEMP_DIR }}
+      - name: Extract
+        run: |
+          mkdir -p $CYPRESS_CACHE_FOLDER
+          PROJECT_FOLDER=${{ needs.nodejs_init.outputs.projectFolder }}
+          mkdir -p $PROJECT_FOLDER
+          tar -xzf $TEMP_DIR/cypress.tar.gz -C /
+          tar -xzf $TEMP_DIR/code.tar.gz -C /
+      - name: cypress:component
+        run: npm run cypress:component
+        working-directory: sematic/ui
+      - name: Upload cypress video
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress_video
+          path: |
+            sematic/ui/tests/cypress_video
+      - name: Upload cypress screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress_screenshots
+          path: |
+            sematic/ui/tests/cypress_screenshots
+      - name: Upload cypress test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress_results
+          path: |
+            sematic/ui/tests/cypress_results
+
+
+  nodejs-integration-test:
+    needs: [nodejs_init]
+    runs-on: ubuntu-latest
+    container:
+      image: cypress/browsers:22.12.0
+      options: --user 0
+    steps:
+      - name: write env vars
+        run: echo "TEMP_DIR=$(mktemp -d)" >> $GITHUB_ENV
+      - uses: actions/download-artifact@v4
+        with:
+          name: nodejs-cache
+          path: ${{ env.TEMP_DIR }}
+      - name: Extract
+        run: |
+          mkdir -p $CYPRESS_CACHE_FOLDER
+          PROJECT_FOLDER=${{ needs.nodejs_init.outputs.projectFolder }}
+          mkdir -p $PROJECT_FOLDER
+          tar -xzf $TEMP_DIR/cypress.tar.gz -C /
+          tar -xzf $TEMP_DIR/code.tar.gz -C /
+      - name: build-essential
+        run:  apt update && apt-get install -y build-essential curl wget libmagic1
+      - name: install uv
+        run: wget -qO- https://astral.sh/uv/install.sh | sh
+      - name: Py-prep
+        run: make py-prep
+      - name: build ui
+        run: npm run build
+        working-directory: sematic/ui
+      - name: start sematic run
+        run: . .venv/bin/activate && sematic start && sematic run examples/add
+      - name: cypress:e2e
+        run: npm run cypress:e2e
+        working-directory: sematic/ui
+      - name: Upload cypress video
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress_video
+          path: |
+            sematic/ui/tests/cypress_video
+      - name: Upload cypress screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress_screenshots
+          path: |
+            sematic/ui/tests/cypress_screenshots
+      - name: Upload cypress test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress_results
+          path: |
+            sematic/ui/tests/cypress_results

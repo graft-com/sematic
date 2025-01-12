@@ -6,6 +6,7 @@ $ sematic start
 The SQLite DB should be migrated to the latest version
 automatically.
 """
+
 # Standard Library
 import datetime
 import enum
@@ -26,6 +27,7 @@ from sqlalchemy.engine import Connection
 # Sematic
 from sematic.config.config import get_config, switch_env
 from sematic.db.db import db
+
 
 _DEFAULT_SCHEMA_FILE = "sematic/db/schema.sql.sqlite"
 
@@ -102,9 +104,7 @@ class InvalidMigrationError(ValueError):
     pass
 
 
-def _run_sql_migration(
-    migration_file: str, version: str, direction: MigrationDirection
-):
+def _run_sql_migration(migration_file: str, version: str, direction: MigrationDirection):
     sql = _get_migration_sql(migration_file)
 
     if not all(marker in sql for marker in (_DOWN_MARKER, _UP_MARKER)):
@@ -210,7 +210,7 @@ def _migrate_up(env: str, verbose: bool, file: str):
     dump_schema(file)
 
 
-def migrate_up():
+def migrate_up() -> None:
     """
     Migrate the DB to the latest version.
     """

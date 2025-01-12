@@ -1,6 +1,7 @@
 """
 Entry point for the testing pipeline.
 """
+
 # Standard Library
 import argparse
 import logging
@@ -19,6 +20,7 @@ from sematic.resolvers.resource_requirements import (
     ResourceRequirements,
 )
 from sematic.runners.state_machine_runner import StateMachineRunner
+
 
 logger = logging.getLogger(__name__)
 
@@ -64,9 +66,7 @@ MAX_PARALLELISM_HELP = (
     "`SCHEDULED` state at any one time. Must be a positive integer, or None for "
     "unlimited runs. Defaults to None."
 )
-INLINE_HELP = (
-    "Whether to include an inline function in the pipeline. Defaults to False."
-)
+INLINE_HELP = "Whether to include an inline function in the pipeline. Defaults to False."
 NESTED_HELP = "Whether to include nested functions in the pipeline. Defaults to False."
 NO_INPUT_HELP = "Whether to include a function that takes no input. Defaults to False."
 RANDOM_HELP = (
@@ -207,9 +207,7 @@ class AppendHostPathAction(argparse._AppendAction):
 
     def __call__(self, parser, namespace, values, option_string=None):
         if values is None or len(values) != 2:
-            raise ValueError(
-                f"Invalid paths for parameter '--mount-host-path': {values}"
-            )
+            raise ValueError(f"Invalid paths for parameter '--mount-host-path': {values}")
 
         items = getattr(namespace, self.dest) or []
         items = items[:]
@@ -279,18 +277,12 @@ def _parse_args() -> argparse.Namespace:
     )
 
     # Pipeline args:
-    parser.add_argument(
-        "--inline", action="store_true", default=False, help=INLINE_HELP
-    )
-    parser.add_argument(
-        "--nested", action="store_true", default=False, help=NESTED_HELP
-    )
+    parser.add_argument("--inline", action="store_true", default=False, help=INLINE_HELP)
+    parser.add_argument("--nested", action="store_true", default=False, help=NESTED_HELP)
     parser.add_argument(
         "--no-input", action="store_true", default=False, help=NO_INPUT_HELP
     )
-    parser.add_argument(
-        "--random", action="store_true", default=False, help=RANDOM_HELP
-    )
+    parser.add_argument("--random", action="store_true", default=False, help=RANDOM_HELP)
     parser.add_argument(
         "--sleep", type=int, default=0, dest="sleep_time", help=SLEEP_HELP
     )
@@ -364,12 +356,8 @@ def _parse_args() -> argparse.Namespace:
         default=None,
         help=CACHE_HELP,
     )
-    parser.add_argument(
-        "--images", action="store_true", default=False, help=IMAGES_HELP
-    )
-    parser.add_argument(
-        "--s3-uris", type=str, default=None, nargs="+", help=S3_URIS_HELP
-    )
+    parser.add_argument("--images", action="store_true", default=False, help=IMAGES_HELP)
+    parser.add_argument("--s3-uris", type=str, default=None, nargs="+", help=S3_URIS_HELP)
     parser.add_argument(
         "--count-letters",
         type=str,

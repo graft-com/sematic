@@ -1,11 +1,13 @@
 """
 Utility code for interacting with the `docker-py` client.
 """
+
 # Standard Library
 import logging
 import sys
 import textwrap
 from typing import Any, Dict, Generator, List, Optional, TextIO
+
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +32,6 @@ def rolling_print_status_updates(
     debugging = logger.isEnabledFor(logging.DEBUG)
 
     for status_update in status_updates:
-
         if "error" in status_update.keys():
             return status_update
 

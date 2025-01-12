@@ -4,6 +4,7 @@ Sematic Types public API
 Only types with lightweight dependencies should
 be added here. Ideally only standard library.
 """
+
 # Sematic
 import sematic.types.types.bool  # noqa: F401
 import sematic.types.types.dataclass  # noqa: F401
@@ -28,6 +29,7 @@ from sematic.types.types.huggingface import (  # noqa: F401
 from sematic.types.types.image import Image  # noqa: F401
 from sematic.types.types.link import Link  # noqa: F401
 from sematic.types.types.prompt_response import PromptResponse  # noqa: F401
+
 
 # isort: off
 

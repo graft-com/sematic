@@ -26,6 +26,7 @@ from sqlalchemy.sql.elements import ColumnElement
 # Sematic
 from sematic.db.models.mixins.json_encodable_mixin import CONTAIN_FILTER_KEY
 
+
 logger = logging.getLogger(__name__)
 
 # Default page size
@@ -54,7 +55,7 @@ class SearchRequestParameters:
     order: Callable[[Any], Any]
     cursor: Optional[str]
     group_by: Optional[sqlalchemy.Column]
-    filters: Optional[ColumnElement[bool]]
+    filters: Optional[ColumnElement[bool]]  # type: ignore
     fields: Optional[List[str]]
 
 
@@ -200,9 +201,7 @@ def list_garbage_ids(
         )
 
     scheme, netloc, path, _, fragment = urlsplit(request_url)
-    current_page_url = urlunsplit(
-        (scheme, netloc, path, encoded_request_args, fragment)
-    )
+    current_page_url = urlunsplit((scheme, netloc, path, encoded_request_args, fragment))
 
     ids = queries[garbage_filter]()
 
@@ -271,9 +270,7 @@ def get_request_parameters(
         raise ValueError(f"Malformed filters: {filters_json}, error: {e}")
 
     sql_predicates = (
-        _get_sql_predicates(filters, column_mapping, model)
-        if len(filters) > 0
-        else None
+        _get_sql_predicates(filters, column_mapping, model) if len(filters) > 0 else None
     )
 
     order = ORDER_BY_DIRECTIONS.get(args.get("order", default_order))
@@ -324,7 +321,7 @@ def _get_sql_predicates(
     filters: Filters,
     column_mapping: ColumnMapping,
     model: type,
-) -> ColumnElement[bool]:
+) -> ColumnElement[bool]:  # type: ignore
     """
     Basic support for AND and OR filter predicates.
 
@@ -353,7 +350,7 @@ def _get_sql_predicates(
         filters = cast(BooleanPredicate, filters)
         operand = cast(Literal["AND", "OR"], operand)
         operator = dict(AND=sqlalchemy.and_, OR=sqlalchemy.or_)[operand]
-        return operator(
+        return operator(  # type: ignore
             *[
                 _extract_predicate(filter_, column_mapping, model)
                 for filter_ in filters[operand]
@@ -361,7 +358,9 @@ def _get_sql_predicates(
         )
     else:
         filter_ = cast(ColumnPredicate, filters)
-        return sqlalchemy.and_(_extract_predicate(filter_, column_mapping, model))
+        return sqlalchemy.and_(  # type: ignore
+            _extract_predicate(filter_, column_mapping, model)
+        )
 
 
 def _extract_predicate(
@@ -436,9 +435,7 @@ def _extract_relationship_predicate(filter: ColumnPredicate, model: type):
         relationship_attribute.property,
         sqlalchemy.orm.relationships.RelationshipProperty,
     ):
-        raise ValueError(
-            f"{relationship_name} is not a relationship property of {model}"
-        )
+        raise ValueError(f"{relationship_name} is not a relationship property of {model}")
 
     relationship_model = relationship_attribute.property.mapper.class_
 

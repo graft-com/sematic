@@ -1,6 +1,6 @@
 # Standard Library
 import datetime
-from typing import Any, List
+from typing import Any, List, Optional
 
 # Third-party
 import pytest
@@ -10,6 +10,7 @@ from sematic.db.db import DB
 from sematic.db.tests.fixtures import test_db  # noqa: F401
 from sematic.metrics.metric_point import MetricPoint, MetricType
 from sematic.plugins.metrics_storage.sql.sql_metrics_storage import SQLMetricsStorage
+
 
 EPSILON = 0.00001
 
@@ -52,7 +53,8 @@ def metric_points():
 
 @pytest.fixture
 def persisted_metric_points(
-    metric_points: List[MetricPoint], test_db: DB  # noqa: F811
+    metric_points: List[MetricPoint],
+    test_db: DB,  # noqa: F811
 ):
     metrics_storage_plugin = SQLMetricsStorage()
 
@@ -66,7 +68,9 @@ def persisted_metric_points(
 SeriesPoint = Any
 
 
-def check_approximate_equality(a: List[SeriesPoint], b: List[SeriesPoint]):
+def check_approximate_equality(
+    a: List[SeriesPoint], b: List[SeriesPoint], equality_epsilon: Optional[float] = None
+):
     assert len(a) == len(b)
     for a_row, b_row in zip(a, b):
         assert len(a_row) == 2
@@ -83,7 +87,9 @@ def check_approximate_equality(a: List[SeriesPoint], b: List[SeriesPoint]):
                 b_label, str
             ), f"Second series contained non-string label: {b_label}"
             if is_float_str(a_label):
-                assert_approx_equal_floats(float(a_label), float(b_label))
+                assert_approx_equal_floats(
+                    float(a_label), float(b_label), equality_epsilon
+                )
             else:
                 assert a_label == b_label
 
@@ -96,7 +102,10 @@ def is_float_str(x: str):
         return False
 
 
-def assert_approx_equal_floats(a: float, b: float):
+def assert_approx_equal_floats(
+    a: float, b: float, equality_epsilon: Optional[float] = None
+):
+    epsilon = equality_epsilon if equality_epsilon is not None else EPSILON
     if a == 0 and b == 0:
         return
-    assert abs(a - b) / (2 * (abs(a) + abs(b))) < EPSILON
+    assert abs(a - b) / (2 * (abs(a) + abs(b))) < epsilon

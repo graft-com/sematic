@@ -3,13 +3,14 @@ import logging
 import re
 import typing
 
+
 logger = logging.getLogger(__name__)
 
 # Represents the version of the client, server, and all other parts of
 # the sdk. Should be bumped any time a release is made. Should be set
 # to whatever is the version after the most recent one in changelog.md,
 # as well as the version for the sematic wheel in wheel_constants.bzl
-CURRENT_VERSION = (0, 40, 0)
+CURRENT_VERSION = (0, 41, 0)
 
 # TO DEPRECATE
 # 0.X.X:

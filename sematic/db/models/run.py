@@ -8,7 +8,7 @@ from typing import Dict, List, Optional, Union
 
 # Third-party
 from sqlalchemy import ForeignKey, types
-from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
+from sqlalchemy.orm import Mapped, mapped_column, relationship, validates  # type: ignore
 
 # Sematic
 from sematic.abstract_function import AbstractFunction
@@ -112,16 +112,12 @@ class Run(HasUserMixin, HasOrganizationMixin, Base, JSONEncodableMixin):
     __tablename__ = "runs"
 
     id: Mapped[str] = mapped_column(types.String(), primary_key=True)
-    original_run_id: Mapped[Optional[str]] = mapped_column(
-        types.String(), nullable=True
-    )
+    original_run_id: Mapped[Optional[str]] = mapped_column(types.String(), nullable=True)
     future_state: Mapped[FutureState] = mapped_column(  # type: ignore
         types.String(), nullable=False, info={ENUM_KEY: FutureState}
     )
     name: Mapped[str] = mapped_column(types.String(), nullable=True)
-    function_path: Mapped[str] = mapped_column(
-        types.String(), nullable=False, index=True
-    )
+    function_path: Mapped[str] = mapped_column(types.String(), nullable=False, index=True)
     parent_id: Mapped[Optional[str]] = mapped_column(types.String(), nullable=True)
     root_id: Mapped[str] = mapped_column(
         types.String(), ForeignKey("runs.id"), nullable=False
@@ -135,12 +131,10 @@ class Run(HasUserMixin, HasOrganizationMixin, Base, JSONEncodableMixin):
     )
     source_code: Mapped[str] = mapped_column(types.String(), nullable=False)
 
-    nested_future_id: Mapped[Optional[str]] = mapped_column(
-        types.String(), nullable=True
+    nested_future_id: Mapped[Optional[str]] = mapped_column(types.String(), nullable=True)
+    exception_metadata_json: Mapped[Optional[Dict[str, Union[str, List[str]]]]] = (
+        mapped_column(types.JSON(), nullable=True)
     )
-    exception_metadata_json: Mapped[
-        Optional[Dict[str, Union[str, List[str]]]]
-    ] = mapped_column(types.JSON(), nullable=True)
     external_exception_metadata_json: Mapped[
         Optional[Dict[str, Union[str, List[str]]]]
     ] = mapped_column(types.JSON(), nullable=True)
@@ -179,8 +173,12 @@ class Run(HasUserMixin, HasOrganizationMixin, Base, JSONEncodableMixin):
     )
 
     # Relationships
-    root_run: Mapped["Run"] = relationship("Run", remote_side=[id], lazy="select")
-    pipeline_run: Mapped[Resolution] = relationship(
+    root_run: Mapped["Run"] = relationship(  # type: ignore
+        "Run",
+        remote_side=[id],
+        lazy="select",
+    )
+    pipeline_run: Mapped[Resolution] = relationship(  # type: ignore
         "Resolution",
         foreign_keys=[root_id],
         viewonly=True,
@@ -220,12 +218,8 @@ class Run(HasUserMixin, HasOrganizationMixin, Base, JSONEncodableMixin):
         return Run._dict_to_exception_metadata(self.exception_metadata_json)
 
     @exception_metadata.setter
-    def exception_metadata(
-        self, exception_metadata: Optional[ExceptionMetadata]
-    ) -> None:
-        self.exception_metadata_json = Run._exception_metadata_to_dict(
-            exception_metadata
-        )
+    def exception_metadata(self, exception_metadata: Optional[ExceptionMetadata]) -> None:
+        self.exception_metadata_json = Run._exception_metadata_to_dict(exception_metadata)
 
     @property
     def external_exception_metadata(self) -> Optional[ExceptionMetadata]:
@@ -297,7 +291,7 @@ class Run(HasUserMixin, HasOrganizationMixin, Base, JSONEncodableMixin):
 
     @staticmethod
     def _dict_to_exception_metadata(
-        dict_: Optional[Dict[str, Union[str, List[str]]]]
+        dict_: Optional[Dict[str, Union[str, List[str]]]],
     ) -> Optional[ExceptionMetadata]:
         """
         Instantiates an `ExceptionMetadata` object from a Dict representation.

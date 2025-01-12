@@ -1,6 +1,7 @@
 """
 Module holding common DB queries.
 """
+
 # Standard Library
 import logging
 from collections import defaultdict
@@ -30,6 +31,7 @@ from sematic.db.models.user import User
 from sematic.plugins.abstract_external_resource import ManagedBy, ResourceState
 from sematic.scheduling.job_details import JobKind, JobKindString, KubernetesJobState
 from sematic.utils.exceptions import IllegalStateTransitionError
+
 
 logger = logging.getLogger(__name__)
 

@@ -110,9 +110,7 @@ def _can_cast_to_dataclass(from_type: Any, to_type: Any) -> Tuple[bool, Optional
     for name, field in to_fields.items():
         can_cast, error = can_cast_type(from_fields[name].type, field.type)
         if not can_cast:
-            return False, "{}: field {} cannot cast: {}".format(
-                prefix, repr(name), error
-            )
+            return False, "{}: field {} cannot cast: {}".format(prefix, repr(name), error)
 
     return True, None
 
@@ -134,8 +132,7 @@ def _dataclass_from_json_encodable(value: Any, type_: Any) -> Any:
     root_type = type_from_json_encodable(root_type_json)
     if not issubclass(root_type, type_):
         raise TypeError(
-            f"Serialized value was a {root_type}, "
-            f"could not deserialize to a {type_}"
+            f"Serialized value was a {root_type}, " f"could not deserialize to a {type_}"
         )
 
     kwargs = {}
@@ -189,13 +186,11 @@ def _serialize_dataclass(serializer: Callable, value: Any, _) -> SummaryOutput:
         # `typing` generics are excluded as they will always be different since the type
         # parametrization (e.g. `int` for `List[int]`) is not conserved on
         # instances
-        if not (value_type is field_type) and not is_parameterized_generic(field_type):
+        if value_type is not field_type and not is_parameterized_generic(field_type):
             output["types"][name] = type_to_json_encodable(value_type)
             value_serialization_type = value_type
 
-        output["values"][name], blobs_ = serializer(
-            field_value, value_serialization_type
-        )
+        output["values"][name], blobs_ = serializer(field_value, value_serialization_type)
         blobs.update(blobs_)
 
     return output, blobs
@@ -251,23 +246,24 @@ def fromdict(dataclass_type: Type[T], as_dict: Dict[str, Any]) -> T:
             continue
         dict_value = as_dict[name]
         if dataclasses.is_dataclass(field.type):
-            kwargs[name] = fromdict(field.type, dict_value)
+            kwargs[name] = fromdict(field.type, dict_value)  # type: ignore
             continue
-        if get_origin(field.type) == list:
+        if get_origin(field.type) is list:
             element_type = get_args(field.type)[0]
             if dataclasses.is_dataclass(element_type):
-                kwargs[name] = [
-                    fromdict(element_type, element) for element in dict_value
+                kwargs[name] = [  # type: ignore
+                    fromdict(element_type, element)  # type: ignore
+                    for element in dict_value
                 ]
                 continue
-        if get_origin(field.type) == dict:
+        if get_origin(field.type) is dict:
             value_type = get_args(field.type)[1]
             if dataclasses.is_dataclass(value_type):
-                kwargs[name] = {
-                    key: fromdict(value_type, value)
+                kwargs[name] = {  # type: ignore
+                    key: fromdict(value_type, value)  # type: ignore
                     for key, value in dict_value.items()
                 }
                 continue
         kwargs[name] = dict_value
 
-    return dataclass_type(**kwargs)
+    return dataclass_type(**kwargs)  # type: ignore

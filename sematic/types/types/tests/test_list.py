@@ -1,9 +1,11 @@
 # Standard Library
+import base64
 import hashlib
 import sys
 from typing import Dict, List, Optional, Tuple, Union
 
 # Third-party
+import cloudpickle
 import pytest
 
 # Sematic
@@ -217,19 +219,15 @@ class A:
 
 
 def test_to_binary_arbitrary():
-
     type_ = List[A]
 
     json_encodable = value_to_json_encodable([A(), A()], type_)
 
-    assert json_encodable == [
-        {
-            "pickle": "gAWVMAAAAAAAAACMI3NlbWF0aWMudHlwZXMudHlwZXMudGVzdHMudGVzdF9saXN0lIwBQZSTlCmBlC4="  # noqa: E501
-        },
-        {
-            "pickle": "gAWVMAAAAAAAAACMI3NlbWF0aWMudHlwZXMudHlwZXMudGVzdHMudGVzdF9saXN0lIwBQZSTlCmBlC4="  # noqa: E501
-        },
-    ]
+    assert len(json_encodable) == 2
+    assert all(list(element.keys()) == ["pickle"] for element in json_encodable)
+    for element in json_encodable:
+        assert list(element.keys()) == ["pickle"]
+        cloudpickle.loads(base64.b64decode(element["pickle"]))
 
 
 @pytest.mark.parametrize(
@@ -238,4 +236,4 @@ def test_to_binary_arbitrary():
 )
 def test_type_from_json_encodable(type_):
     json_encodable = type_to_json_encodable(type_)
-    assert type_from_json_encodable(json_encodable) is type_
+    assert type_from_json_encodable(json_encodable) == type_

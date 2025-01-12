@@ -23,6 +23,7 @@ from sematic.runners.cloud_runner import (
 )
 from sematic.scheduling.job_details import JobKind, JobKindString
 
+
 V2_LOG_PREFIX = "logs/v2"
 LOG_PATH_FORMAT = "{prefix}/run_id/{run_id}/{log_kind}/"
 
@@ -76,9 +77,7 @@ def log_prefix(run_id: str, job_kind: JobKindString):
     # wait until after deprecating V1, so we don't have to support
     # *3* formats in this module at one time.
     log_kind = "worker" if job_kind == JobKind.run else "driver"
-    return LOG_PATH_FORMAT.format(
-        prefix=V2_LOG_PREFIX, run_id=run_id, log_kind=log_kind
-    )
+    return LOG_PATH_FORMAT.format(prefix=V2_LOG_PREFIX, run_id=run_id, log_kind=log_kind)
 
 
 @dataclass
@@ -177,9 +176,9 @@ class Cursor:
     def nothing_found(cls, filter_strings: List[str], run_id: str, reverse: bool):
         return Cursor(
             source_log_key=None,
-            source_file_line_index=DEFAULT_END_INDEX
-            if reverse
-            else DEFAULT_START_INDEX,
+            source_file_line_index=(
+                DEFAULT_END_INDEX if reverse else DEFAULT_START_INDEX
+            ),
             filter_strings=filter_strings,
             run_id=run_id,
             traversal_had_lines=False,
@@ -404,11 +403,11 @@ def _load_non_inline_logs(
             can_continue_backward=False,
             lines=[],
             line_ids=[],
-            forward_cursor_token=Cursor.nothing_found(
-                filter_strings, run_id, reverse=False
-            ).to_token()
-            if still_running
-            else None,
+            forward_cursor_token=(
+                Cursor.nothing_found(filter_strings, run_id, reverse=False).to_token()
+                if still_running
+                else None
+            ),
             reverse_cursor_token=None,
             log_info_message="No log files found",
         )
@@ -468,11 +467,11 @@ def _load_inline_logs(
         return LogLineResult(
             can_continue_forward=still_running,
             can_continue_backward=False,
-            forward_cursor_token=Cursor.nothing_found(
-                filter_strings, run_id, reverse=False
-            ).to_token()
-            if still_running
-            else None,
+            forward_cursor_token=(
+                Cursor.nothing_found(filter_strings, run_id, reverse=False).to_token()
+                if still_running
+                else None
+            ),
             reverse_cursor_token=None,
             lines=[],
             line_ids=[],
@@ -724,9 +723,7 @@ def get_log_lines_from_line_stream(
     # Reverse one should be AT the earliest included line.
     forward_cursor_file = latest_included_line_file
     forward_cursor_index: Optional[int] = (
-        latest_included_line_index + 1
-        if latest_included_line_index is not None
-        else None
+        latest_included_line_index + 1 if latest_included_line_index is not None else None
     )
     reverse_cursor_file = earliest_included_line_file
     reverse_cursor_index = earliest_included_line_index

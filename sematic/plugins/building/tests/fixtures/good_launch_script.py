@@ -1,7 +1,9 @@
 """Test launch script that cooperates."""
+
 # Standard Library
 import os
 import sys
+
 
 # we expect it to run as the main script
 if __name__ == "__main__":

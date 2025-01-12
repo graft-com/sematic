@@ -6,6 +6,7 @@ Plug-ins are classes that inherit from the AbstractPlugin abstract base class.
 Plug-ins are imported at runtime based on user's or server's settings stored in
 their corresponding yaml files.
 """
+
 # Standard Library
 import abc
 import enum
@@ -16,6 +17,7 @@ from typing import Tuple, Type, final
 
 # Sematic
 from sematic.utils.exceptions import MissingPluginError
+
 
 logger = logging.getLogger(__name__)
 

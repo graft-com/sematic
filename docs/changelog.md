@@ -5,6 +5,10 @@ Lines for version numbers should always be formatted as
 with nothing else on the line.
 -->
 * HEAD
+* [0.41.0](https://pypi.org/project/sematic/0.41.0/)
+    * [improvement] Remove Enterprise Edition Licensing, restore Apache 2.0 for
+      all code including features previously limited to EE.
+    * [improvement] Add support for python 3.13, drop support for 3.8.
 * [0.40.0](https://pypi.org/project/sematic/0.40.0/)
     * [feature] Allow custom labels and annotations for Ray integration
     * [bugfix] Fix an issue with tuple type casting checks
@@ -96,7 +100,7 @@ with nothing else on the line.
     * [improvement] Add constraints to the DB schema in order to improve validations. In case you
       get any errors during the upgrade, please contact us on
       [Discord](https://discord.gg/4KZJ6kYVax) so that we can assist you.
-    * [improvement] Added documentation for custom user metrics[^1]
+    * [improvement] Added documentation for custom user metrics
     * [improvement] Improve error messaging for unschedulable pipeline runs
     * [improvement] When running the CLI via Bazel, use the current directory as the working
       directory
@@ -119,7 +123,7 @@ with nothing else on the line.
     * [improvement] Add index on edges for source/dest run ids
 * [0.31.0](https://pypi.org/project/sematic/0.31.0/)
     * [feature] Enable remote execution using pure-Docker, without bazel
-    * [feature] Support live-metrics during Sematic Function execution[^1]
+    * [feature] Support live-metrics during Sematic Function execution
     * [feature] Add visualization for Prompt/Response pairs
     * [example] Add Hacker News summarization example
     * [improvement] Expose all Kubernetes classes in the base `sematic` module
@@ -232,7 +236,7 @@ with nothing else on the line.
     * [bugfix] Fixed a bug where failure to notify the Dashboard or Resolver with Run updates via
       socketio messages would cause the Resolution to fail
 * [0.26.0](https://pypi.org/project/sematic/0.26.0/)
-    * [feature] Added optional anonymized user analytics to track Sematic usage[^2]
+    * [feature] Added optional anonymized user analytics to track Sematic usage[^1]
     * [improvement] Atomic database migrations with Helm hooks
     * [improvement] Move future pickle storage to new server-generated locations
     * [improvement] Refactor in-app links to use react router
@@ -255,7 +259,7 @@ with nothing else on the line.
     * [improvement] Show more detailed errors on failures of DB migrations
     * [bugfix] Reduce wheel size
 * [0.24.0](https://pypi.org/project/sematic/0.24.0/)
-    * [feature] Introduction of RayCluster[^1]
+    * [feature] Introduction of RayCluster
     * [feature] "Tee" cloud function logs so they appear in Sematic dashboard and the pod logs
     * [improvement] Visualize better which run was the true "root failure" when a resolution fails
     * [improvement] Improve an error message when using untyped dicts in type annotations
@@ -486,7 +490,5 @@ with nothing else on the line.
 * [0.0.2.alpha.1654828599](https://pypi.org/project/sematic/0.0.2a1654828599/)
     * Initial release
 
-[^1]: This feature is for Sematic's "Enterprise Edition" only. Please reach out
-to support@sematic.dev if you are interested in using Sematic EE.
-[^2]: This release adds opt-out anonymized user analytics tracking to the Sematic
+[^1]: This release adds opt-out anonymized user analytics tracking to the Sematic
 code.  You can opt-out of this tracking on the Sematic Dashboard home page.

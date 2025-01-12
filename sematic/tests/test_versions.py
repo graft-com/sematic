@@ -1,5 +1,4 @@
 # Standard Library
-import os
 import re
 
 # Third-party
@@ -12,6 +11,7 @@ from sematic.versions import (
     string_version_to_tuple,
     version_as_string,
 )
+
 
 CHANGELOG_MATCH_PATTERN = r"\* \[(\d+\.\d+\.\d+.*)\]\(.+\)$"
 PYPI_BADGE_MATCH_PATTERN = (
@@ -68,19 +68,19 @@ def test_helm_chart():
     assert values_version == CURRENT_VERSION, message
 
 
-def test_bazel_wheel_version():
-    version_string = os.environ.get("BAZEL_WHEEL_VERSION")
+def test_pyproject():
+    with open("pyproject.toml", "r") as fp:
+        matches = [re.match(r"version = \"([^\"]+)\"", line.strip()) for line in fp]
 
-    assert (
-        len(version_string) is not None
-    ), "Could not find a release version in 'wheel_constants.bzl'."
-
-    bazel_wheel_version = string_version_to_tuple(version_string)
+    matches = [match for match in matches if match is not None]
+    assert len(matches) >= 1, "No version found in pyproject.toml"
+    version_str = matches[0][1]
+    pyproject_version = string_version_to_tuple(version_str)
     message = (
-        f"Version in 'wheel_constants.bzl' {bazel_wheel_version} doesn't "
-        f"match the version in 'versions.py' {CURRENT_VERSION}"
+        f"Latest version in 'pyproject.toml' {pyproject_version} doesn't "
+        f"match the version in 'versions.py' {CURRENT_VERSION}."
     )
-    assert bazel_wheel_version == CURRENT_VERSION, message
+    assert pyproject_version == CURRENT_VERSION, message
 
 
 def test_pypi_badge():

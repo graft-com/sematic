@@ -14,6 +14,7 @@ from sematic.utils.context_var import (
 )
 from sematic.utils.exceptions import NotInSematicFuncError
 
+
 FUTURE_ALGEBRA_DOC_LINK = "https://docs.sematic.dev/diving-deeper/future-algebra"
 
 

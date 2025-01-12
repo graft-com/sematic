@@ -16,6 +16,7 @@ from sematic.utils.exceptions import (
     NotInSematicFuncError,
 )
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -437,7 +438,7 @@ class AbstractExternalResource(AbstractPlugin):
             self.__exit__()  # type: ignore
             raise
 
-    def __exit__(self, exc_type=None, exc_value=None, exc_traceback=None):
+    def __exit__(self, exc_type=None, exc_value=None, exc_traceback=None) -> None:
         ctx: SematicContext = context()
         ctx.private.load_runner_class().exiting_resource_context(self.id)
         deactivated = ctx.private.load_runner_class().deactivate_resource(self.id)

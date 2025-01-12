@@ -1,6 +1,7 @@
 """
 The native Docker Builder plugin configuration file management module.
 """
+
 # Standard Library
 import functools
 import json
@@ -16,6 +17,7 @@ import yaml
 # Sematic
 from sematic.plugins.abstract_builder import BuildConfigurationError
 from sematic.utils.types import as_bool
+
 
 logger = logging.getLogger(__name__)
 
@@ -528,9 +530,7 @@ def _validate_paths(paths: Optional[List[str]]) -> None:
     if paths is not None:
         for path in paths:
             if _is_abs_path(path):
-                raise BuildConfigurationError(
-                    f"Paths cannot be absolute; got: '{path}'"
-                )
+                raise BuildConfigurationError(f"Paths cannot be absolute; got: '{path}'")
 
 
 def _normalize_paths(relative_path: str, paths: List[str]) -> List[str]:

@@ -1,6 +1,7 @@
 """
 Abstract base class for a state machine-based DAG execution.
 """
+
 # Standard Library
 import abc
 import logging
@@ -32,6 +33,7 @@ from sematic.utils.exceptions import (
 from sematic.utils.signals import FrameType, HandlerType, call_signal_handler
 from sematic.utils.timeout import timeout
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -39,7 +41,7 @@ class StateMachineRunner(Runner, abc.ABC):
     # Time between resource updates *during activation and deactivation*
     _RESOURCE_UPDATE_INTERVAL_SECONDS = 1
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._futures: typing.List[AbstractFuture] = []
 
     @property
@@ -159,7 +161,7 @@ class StateMachineRunner(Runner, abc.ABC):
     def _cancel_on_sigterm(self) -> bool:
         return True
 
-    def _register_signal_handlers(self):
+    def _register_signal_handlers(self) -> None:
         runner_pid = os.getpid()
         original_handlers: typing.Dict[int, HandlerType] = dict()
 
@@ -194,7 +196,9 @@ class StateMachineRunner(Runner, abc.ABC):
                 call_signal_handler(original_handlers[signum], signum, frame)
 
         for signum in {signal.SIGINT, signal.SIGTERM}:
-            original_handlers[signum] = signal.signal(signum, _handle_sig_cancel)
+            original_handlers[signum] = signal.signal(  # type: ignore
+                signum, _handle_sig_cancel
+            )
 
     def _enqueue_future(self, future: AbstractFuture) -> None:
         if future in self._futures:
@@ -291,9 +295,7 @@ class StateMachineRunner(Runner, abc.ABC):
         # runs that used the same timeout duration and started simultaneously),
         # we fall back to comparing ids lexically to break the tie (future objects
         # are not comparable, so we use the id).
-        return min(
-            remaining_timeout_future_pairs, key=lambda pair: (pair[0], pair[1].id)
-        )
+        return min(remaining_timeout_future_pairs, key=lambda pair: (pair[0], pair[1].id))
 
     def _cancel_non_terminal_futures(self):
         for future in self._futures:
@@ -606,9 +608,7 @@ class StateMachineRunner(Runner, abc.ABC):
     def _do_resource_deactivate(
         cls, resource: AbstractExternalResource
     ) -> AbstractExternalResource:
-        raise NotImplementedError(
-            "Child classes must implement _do_resource_deactivate"
-        )
+        raise NotImplementedError("Child classes must implement _do_resource_deactivate")
 
     @classmethod
     def _do_resource_update(

@@ -5,7 +5,7 @@ from typing import Any, Dict, Tuple, Type, Union
 
 # Third-party
 from sqlalchemy import types
-from sqlalchemy.orm import Mapped, mapped_column, validates
+from sqlalchemy.orm import Mapped, mapped_column, validates  # type: ignore
 
 # Sematic
 from sematic.db.models.base import Base
@@ -23,6 +23,7 @@ from sematic.types.serialization import (
     value_to_json_encodable,
 )
 from sematic.utils.exceptions import MissingPluginError
+
 
 TypeSerialization = Dict[str, Any]
 

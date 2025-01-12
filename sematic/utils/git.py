@@ -1,6 +1,7 @@
 """
 Utility for extracting details about the git workspace.
 """
+
 # Standard Library
 import inspect
 import logging
@@ -9,6 +10,7 @@ from typing import Any, Optional
 
 # Sematic
 from sematic.db.models.git_info import GitInfo
+
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +30,7 @@ def get_git_info(object_: Any) -> Optional[GitInfo]:
         # Third-party
         import git  # type: ignore
     except ImportError as e:
-        logger.warn("Could not get git information", exc_info=e)
+        logger.warning("Could not get git information", exc_info=e)
         return None
 
     # try to search the path ancestors of the given object's source code for a git repo

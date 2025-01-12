@@ -1,6 +1,7 @@
 """
 Flexible-structure pipeline meant to be used in load testing.
 """
+
 # Standard Library
 import logging
 import time
@@ -21,6 +22,7 @@ from torchvision.transforms import Compose, Normalize, ToTensor
 from sematic.ee.ray import AutoscalerConfig, RayCluster, RayNodeConfig, SimpleRayCluster
 from sematic.examples.mnist.pytorch.train_eval import Net, train
 from sematic.function import func
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

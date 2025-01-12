@@ -18,6 +18,7 @@ at this time). Users then specify in the `sematic.func` decorator what base
 image to use with the `base_image_tag` argument that should correspond to one of
 the keys in the mapping passed to `sematic_pipeline`.
 """
+
 # Standard Library
 import dataclasses
 import json
@@ -27,7 +28,7 @@ from typing import Dict, FrozenSet, Optional, Union
 
 # Third-party
 from sqlalchemy import ForeignKey, types
-from sqlalchemy.orm import Mapped, mapped_column, validates
+from sqlalchemy.orm import Mapped, mapped_column, validates  # type: ignore
 
 # Sematic
 from sematic.db.models.base import Base
@@ -45,6 +46,7 @@ from sematic.types.serialization import (
     value_from_json_encodable,
     value_to_json_encodable,
 )
+
 
 logger = logging.getLogger(__name__)
 
@@ -148,9 +150,7 @@ _ALLOWED_TRANSITIONS = {
     ResolutionStatus.CANCELED: {},
 }
 
-_TERMINAL_STATES = frozenset(
-    {state for state in ResolutionStatus if state.is_terminal()}
-)
+_TERMINAL_STATES = frozenset({state for state in ResolutionStatus if state.is_terminal()})
 _NON_TERMINAL_STATES = frozenset(
     {state for state in ResolutionStatus if not state.is_terminal()}
 )
@@ -242,9 +242,7 @@ class Resolution(Base, HasUserMixin, HasOrganizationMixin, JSONEncodableMixin):
         types.String(), nullable=True
     )
     client_version: Mapped[Optional[str]] = mapped_column(types.String(), nullable=True)
-    cache_namespace: Mapped[Optional[str]] = mapped_column(
-        types.String(), nullable=True
-    )
+    cache_namespace: Mapped[Optional[str]] = mapped_column(types.String(), nullable=True)
     run_command: Mapped[Optional[str]] = mapped_column(types.String(), nullable=True)
     build_config: Mapped[Optional[str]] = mapped_column(types.String(), nullable=True)
     resource_requirements_json: Mapped[Optional[str]] = mapped_column(

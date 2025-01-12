@@ -1,6 +1,7 @@
 """
 The GitHub Publisher plugin implementation.
 """
+
 # Standard Library
 import logging
 from typing import Any, Type, cast
@@ -22,6 +23,7 @@ from sematic.ee.plugins.publishing.github.check import (
     check_commit,
 )
 from sematic.plugins.abstract_publisher import AbstractPublisher
+
 
 logger = logging.getLogger(__name__)
 

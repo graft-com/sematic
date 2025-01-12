@@ -2,6 +2,7 @@
 The module that contains the definition of the AbstractBuilder plugin, which packages user
 code and builds container images that can be used to execute the user's funcs.
 """
+
 # Standard Library
 import abc
 import os
@@ -10,6 +11,7 @@ from typing import Optional, Type, cast
 # Sematic
 from sematic.abstract_plugin import AbstractPlugin, PluginScope
 from sematic.config.settings import get_active_plugins
+
 
 RUN_COMMAND_ENV_VAR = "SEMATIC_CLI_RUN_COMMAND"
 BUILD_CONFIG_ENV_VAR = "SEMATIC_IMAGE_BUILD_CONFIG"

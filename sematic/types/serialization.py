@@ -1,6 +1,7 @@
 """
 This module contains the public API for artifact serialization.
 """
+
 # Standard Library
 import abc
 import base64
@@ -29,6 +30,7 @@ from sematic.types.registry import (
     is_sematic_parametrized_generic_type,
     is_supported_type_annotation,
 )
+
 
 # VALUE SERIALIZATION
 
@@ -108,9 +110,7 @@ def get_json_encodable_summary(value: typing.Any, type_: typing.Any) -> SummaryO
     to_json_encodable_summary_func = get_to_json_encodable_summary_func(type_)
 
     if to_json_encodable_summary_func is None and dataclasses.is_dataclass(type_):
-        to_json_encodable_summary_func = get_to_json_encodable_summary_func(
-            DataclassKey
-        )
+        to_json_encodable_summary_func = get_to_json_encodable_summary_func(DataclassKey)
 
     if to_json_encodable_summary_func is None and is_enum(type_):
         to_json_encodable_summary_func = get_to_json_encodable_summary_func(Enum)
@@ -173,7 +173,7 @@ def type_from_json_encodable(json_encodable: typing.Any) -> typing.Any:
             for arg in parameters["args"]
         ]
 
-        args = args[0] if len(args) == 1 else tuple(args)
+        args = args[0] if len(args) == 1 else tuple(args)  # type: ignore
 
         return base.__getitem__(args)
 
@@ -318,9 +318,7 @@ def _parameter_repr(value: typing.Any) -> typing.Any:
     return {"value": value}
 
 
-def _populate_registry(
-    type_: typing.Any, registry: typing.Dict[str, typing.Any]
-) -> None:
+def _populate_registry(type_: typing.Any, registry: typing.Dict[str, typing.Any]) -> None:
     def _include_in_registry(t) -> bool:
         return t not in (object, abc.ABC, GenericType)
 

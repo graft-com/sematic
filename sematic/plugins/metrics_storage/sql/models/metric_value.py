@@ -3,7 +3,7 @@ import datetime
 
 # Third-party
 from sqlalchemy import ForeignKey, Index, types
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column  # type: ignore
 
 # Sematic
 from sematic.db.models.base import Base
@@ -44,7 +44,9 @@ class MetricValue(Base):
     )
 
 
-Index(
-    "metric_values_id_time_idx", MetricValue.metric_id, MetricValue.metric_time.desc()
-),
+(
+    Index(
+        "metric_values_id_time_idx", MetricValue.metric_id, MetricValue.metric_time.desc()
+    ),
+)
 Index("metric_values_time_idx", MetricValue.metric_time.desc())

@@ -1,6 +1,7 @@
 """
 This is an example implementation of the MNIST pipeline in PyTorch on sematic.
 """
+
 # Sematic
 # MNIST example
 from sematic import LocalRunner
@@ -10,6 +11,7 @@ from sematic.examples.mnist.pytorch.pipeline import (
     TrainConfig,
     pipeline,
 )
+
 
 PIPELINE_CONFIG = PipelineConfig(
     dataloader_config=DataLoaderConfig(),

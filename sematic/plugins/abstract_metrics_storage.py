@@ -1,6 +1,7 @@
 """
 Module declaring the interface for metrics storage plug-ins.
 """
+
 # Standard Library
 import abc
 import enum
@@ -78,9 +79,7 @@ class MetricSeries:
 
     metric_name: str
     metric_type: Optional[str] = None
-    series: List[Tuple[float, Tuple[Union[str, int], ...]]] = field(
-        default_factory=list
-    )
+    series: List[Tuple[float, Tuple[Union[str, int], ...]]] = field(default_factory=list)
     columns: List[str] = field(default_factory=list)
 
 

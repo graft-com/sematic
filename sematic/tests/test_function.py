@@ -115,9 +115,7 @@ def test_inline_and_resource_reqs():
 
         @func(
             standalone=False,
-            resource_requirements=ResourceRequirements(
-                KubernetesResourceRequirements()
-            ),
+            resource_requirements=ResourceRequirements(KubernetesResourceRequirements()),
         )
         def abc():
             pass
