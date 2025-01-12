@@ -15,6 +15,7 @@ from enum import Enum
 
 # Third-party
 import cloudpickle  # type: ignore
+from typing_extensions import get_original_bases
 
 # Sematic
 from sematic.types.generic_type import GenericType
@@ -30,6 +31,7 @@ from sematic.types.registry import (
     is_sematic_parametrized_generic_type,
     is_supported_type_annotation,
 )
+from sematic.utils.types import resolve_type
 
 
 # VALUE SERIALIZATION
@@ -193,7 +195,7 @@ def type_from_json_encodable(json_encodable: typing.Any) -> typing.Any:
 def _type_repr(
     type_: typing.Any,
 ) -> typing.Tuple[str, str, typing.Dict[str, typing.Any]]:
-    return (_get_category(type_), _get_key(type_), _get_parameters(type_))
+    return _get_category(type_), _get_key(type_), _get_parameters(type_)
 
 
 _BUILTINS = (float, int, str, bool, type(None), bytes)
@@ -271,11 +273,11 @@ def _get_parameters(type_: typing.Any) -> typing.Dict[str, typing.Any]:
         return {"args": [_parameter_repr(arg) for arg in typing.get_args(type_)]}
 
     if _is_dataclass(type_):
+        field_names = [field.name for field in dataclasses.fields(type_)]
         return {
             "import_path": type_.__module__,
             "fields": {
-                name: _parameter_repr(field.type)
-                for name, field in type_.__dataclass_fields__.items()
+                name: _parameter_repr(resolve_type(type_, name)) for name in field_names
             },
         }
 
@@ -320,7 +322,20 @@ def _parameter_repr(value: typing.Any) -> typing.Any:
 
 def _populate_registry(type_: typing.Any, registry: typing.Dict[str, typing.Any]) -> None:
     def _include_in_registry(t) -> bool:
+        if _has_unparametrized_type_vars(t):
+            return False
         return t not in (object, abc.ABC, GenericType)
+
+    def _has_unparametrized_type_vars(cls: type):
+        try:
+            return any(
+                isinstance(T, typing.TypeVar)
+                for base in get_original_bases(cls)
+                for T in typing.get_args(base)
+            )
+        except TypeError:
+            # Then we're dealing with a parametrized GenericAlias, like dict[str, str]
+            return False
 
     if not _include_in_registry(type_):
         return
@@ -333,7 +348,10 @@ def _populate_registry(type_: typing.Any, registry: typing.Dict[str, typing.Any]
 
     if _is_dataclass(type_):
         _populate_registry_from_parameters(
-            {name: field.type for name, field in type_.__dataclass_fields__.items()},
+            {
+                name: resolve_type(type_, name)
+                for name in type_.__dataclass_fields__.keys()
+            },
             registry,
         )
 
