@@ -3,12 +3,11 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass, field
 from importlib import import_module
-from typing import Any, List, Optional, Type
+from typing import Any, List, Type
 
 # Sematic
 from sematic.abstract_future import AbstractFuture
 from sematic.utils.context_var import (
-    NOT_SET,
     get_ctx_var_value_with_fallback,
     temp_set_context_vars,
 )
