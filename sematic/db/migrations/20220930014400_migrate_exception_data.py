@@ -35,7 +35,7 @@ def down():
         run_id_exception_json_pairs = conn.execute(
             text(
                 "SELECT id, exception_json FROM runs "
-                "WHERE exception_json IS NOT NULL AND exception_json IS NOT 'null';"
+                "WHERE exception_json IS NOT NULL AND exception_json != 'null';"
             )
         )
 
