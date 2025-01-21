@@ -9,10 +9,12 @@ import pytest
 from sematic.utils.types import resolve_type
 
 
-def test_resolve_type():
-    """Test the resolve_type utility."""
+T = TypeVar("T")
+U = TypeVar("U")
 
-    T = TypeVar("T")
+
+def test_resolve_type_for_basic_type():
+    """Test the resolve_type utility."""
 
     @dataclass
     class A(Generic[T]):
@@ -47,3 +49,28 @@ def test_resolve_type():
     ):
         with pytest.raises(ValueError, match=match):
             resolve_type(cls, attr_name)
+
+
+def test_resolve_type_for_container_types():
+    """Test the resolve_type utility."""
+
+    @dataclass
+    class HasContainers(Generic[T, U]):
+        items_list: list[T]
+        items_tuple: tuple[T]
+        items_set: set[T]
+        maps: dict[T, U]
+
+    @dataclass
+    class IntFloat(HasContainers[int, float]):
+        pass
+
+    @dataclass
+    class Nested(HasContainers[int, HasContainers[int, float]]):
+        pass
+
+    assert resolve_type(IntFloat, "items_list") == list[int]
+    assert resolve_type(IntFloat, "items_tuple") == tuple[int]
+    assert resolve_type(IntFloat, "items_set") == set[int]
+    assert resolve_type(IntFloat, "maps") == dict[int, float]
+    assert resolve_type(Nested, "maps") == dict[int, HasContainers[int, float]]
