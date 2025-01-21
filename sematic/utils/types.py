@@ -58,7 +58,7 @@ def resolve_type(cls: type, attribute: str):
 
     Handles situation where attribute is a TypeVar.
     """
-    # Get the type hints for the class
+    # Extract the attribute's type hint
     type_hints = get_type_hints(cls)
     try:
         field_type = type_hints[attribute]
@@ -67,9 +67,9 @@ def resolve_type(cls: type, attribute: str):
             f"The class '{cls.__name__}' does not have the '{attribute}' attribute"
         )
         raise ValueError(error_msg)
-    # Check if the type is a TypeVar
+    # And if it's a TypeVar....
     if isinstance(field_type, TypeVar):
-        # Iterate through the bases to find the matching origin and substitution
+        # Iterate through the bases to find the matching original type
         for base in get_original_bases(cls):
             origin = get_origin(base)
             if origin is None:
