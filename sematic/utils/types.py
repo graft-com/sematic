@@ -5,6 +5,7 @@ from typing import (
     Optional,
     TypeVar,
     Union,
+    cast,
     get_args,
     get_origin,
     get_type_hints,
@@ -80,7 +81,7 @@ def _resolve_generic_type(
             resolved_args = tuple(
                 _resolve_generic_type(cls, arg, attribute) for arg in get_args(type_)
             )
-            return Union[resolved_args]
+            return cast(type, Union[resolved_args])
         args = tuple(
             _resolve_generic_type(cls=cls, type_=arg, attribute=attribute)
             for arg in get_args(type_)
