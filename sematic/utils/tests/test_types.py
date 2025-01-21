@@ -1,4 +1,5 @@
 # Standard Library
+import sys
 from dataclasses import dataclass
 from typing import Generic, TypeVar, Union
 
@@ -81,3 +82,19 @@ def test_resolve_type_for_container_types():
     assert resolve_type(IntFloat, "items_set") == set[int]
     assert resolve_type(IntFloat, "maps") == dict[int, float]
     assert resolve_type(Nested, "maps") == dict[int, HasContainers[int, float]]
+
+
+major, minor, *_ = sys.version_info
+SKIP_CONDITION = (major, minor) <= (3, 9)
+
+
+@pytest.mark.skipif(
+    condition=SKIP_CONDITION,
+    reason="This test only makes sense for Python 3.10 and higher",
+)
+def test_resolve_type_for_modern_annotations():
+    @dataclass
+    class HasModernUnion:
+        union: int | str
+
+    assert resolve_type(HasModernUnion, "union") is Union[int, str]
