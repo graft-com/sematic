@@ -1,5 +1,4 @@
 # Standard Library
-import types
 from typing import (
     Any,
     Generic,
@@ -11,7 +10,6 @@ from typing import (
     get_type_hints,
 )
 
-from boltons.typeutils import issubclass
 from typing_extensions import get_original_bases
 
 
@@ -78,7 +76,7 @@ def _resolve_generic_type(
 ) -> Union[type, TypeVar]:
     origin = get_origin(type_)
     if origin is not None:  # It's a generic like list, dict, etc.
-        if issubclass(origin, types.UnionType):
+        if origin is Union:
             resolved_args = tuple(
                 _resolve_generic_type(cls, arg, attribute) for arg in get_args(type_)
             )
