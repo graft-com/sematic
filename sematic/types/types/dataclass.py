@@ -34,6 +34,7 @@ from sematic.types.serialization import (
     value_from_json_encodable,
     value_to_json_encodable,
 )
+from sematic.utils.types import resolve_type
 
 
 @register_safe_cast(DataclassKey)
@@ -57,8 +58,8 @@ def _safe_cast_dataclass(value: Any, type_: Any) -> Tuple[Any, Optional[str]]:
         # Otherwise we make sure the subclass is conserved, including
         # potential additional fields.
         cast_value = copy.deepcopy(value)
-
-    for name, field in type_.__dataclass_fields__.items():
+    field_names = [field.name for field in dataclasses.fields(type_)]
+    for name in field_names:
         try:
             # First we attempt to access the property
             field_value = getattr(value, name)
@@ -70,8 +71,8 @@ def _safe_cast_dataclass(value: Any, type_: Any) -> Tuple[Any, Optional[str]]:
                 return None, "Cannot cast {} to {}: Field {} is missing".format(
                     repr(value), type_, repr(name)
                 )
-
-        cast_field, error = safe_cast(field_value, field.type)
+        field_type = resolve_type(type_, name)
+        cast_field, error = safe_cast(field_value, field_type)
         if error is not None:
             return None, "Cannot cast field '{}' of {} to {}: {}".format(
                 name, repr(value), type_, error
@@ -108,7 +109,9 @@ def _can_cast_to_dataclass(from_type: Any, to_type: Any) -> Tuple[bool, Optional
         return False, "{}: missing fields: {}".format(prefix, repr(missing_fields))
 
     for name, field in to_fields.items():
-        can_cast, error = can_cast_type(from_fields[name].type, field.type)
+        from_attr_type = resolve_type(cls=from_type, attribute=name)
+        to_attr_type = resolve_type(cls=to_type, attribute=name)
+        can_cast, error = can_cast_type(from_attr_type, to_attr_type)
         if not can_cast:
             return False, "{}: field {} cannot cast: {}".format(prefix, repr(name), error)
 
@@ -136,11 +139,9 @@ def _dataclass_from_json_encodable(value: Any, type_: Any) -> Any:
         )
 
     kwargs = {}
-
-    fields: Dict[str, dataclasses.Field] = root_type.__dataclass_fields__
-
-    for name, field in fields.items():
-        field_type = field.type
+    field_names = [field.name for field in dataclasses.fields(root_type)]
+    for name in field_names:
+        field_type = resolve_type(root_type, name)
         if name in types:
             field_type = type_from_json_encodable(types[name])
 
@@ -179,7 +180,7 @@ def _serialize_dataclass(serializer: Callable, value: Any, _) -> SummaryOutput:
         # The actual value type can be different from the field type if
         # the value is an instance of a subclass
         value_type = type(field_value)
-        field_type = value_serialization_type = field.type
+        field_type = value_serialization_type = resolve_type(type_, name)
 
         # Only if the value type is different (e.g. subclass) do we persist the type
         # serialization
@@ -245,19 +246,20 @@ def fromdict(dataclass_type: Type[T], as_dict: Dict[str, Any]) -> T:
         if not field.init:
             continue
         dict_value = as_dict[name]
-        if dataclasses.is_dataclass(field.type):
-            kwargs[name] = fromdict(field.type, dict_value)  # type: ignore
+        field_type = resolve_type(dataclass_type, name)
+        if dataclasses.is_dataclass(field_type):
+            kwargs[name] = fromdict(field_type, dict_value)  # type: ignore
             continue
-        if get_origin(field.type) is list:
-            element_type = get_args(field.type)[0]
+        if get_origin(field_type) is list:
+            element_type = get_args(field_type)[0]
             if dataclasses.is_dataclass(element_type):
                 kwargs[name] = [  # type: ignore
                     fromdict(element_type, element)  # type: ignore
                     for element in dict_value
                 ]
                 continue
-        if get_origin(field.type) is dict:
-            value_type = get_args(field.type)[1]
+        if get_origin(field_type) is dict:
+            value_type = get_args(field_type)[1]
             if dataclasses.is_dataclass(value_type):
                 kwargs[name] = {  # type: ignore
                     key: fromdict(value_type, value)  # type: ignore
