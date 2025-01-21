@@ -1,6 +1,6 @@
 # Standard Library
 from dataclasses import dataclass
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, Union
 
 # Third-party
 import pytest
@@ -17,28 +17,35 @@ def test_resolve_type_for_basic_type():
     """Test the resolve_type utility."""
 
     @dataclass
-    class A(Generic[T]):
+    class A(Generic[T, U]):
         val: T
+        union_val: Union[T, U]
 
         def test(self, a: T) -> T:
             return self.val
 
     @dataclass
-    class B(A[int]):
+    class B(A[int, float]):
         def test(self, a: int) -> int:
             return a + self.val
 
     @dataclass
-    class C(A[A[int]]):
+    class C(A[A[int, float], float]):
         pass
 
     @dataclass
     class Concrete:
         x: int
 
+    @dataclass
+    class HasUnion:
+        union: Union[int, str]
+
     assert resolve_type(B, "val") is int
-    assert resolve_type(C, "val") is A[int]
+    assert resolve_type(B, "union_val") is Union[int, float]
+    assert resolve_type(C, "val") is A[int, float]
     assert resolve_type(Concrete, "x") is int
+    assert resolve_type(HasUnion, "union") is Union[int, str]
     for cls, attr_name, match in (
         (
             A,
