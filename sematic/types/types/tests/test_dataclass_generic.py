@@ -20,6 +20,7 @@ from sematic.types.serialization import (
 
 
 T = TypeVar("T")
+U = TypeVar("U")
 
 
 @dataclass
@@ -44,6 +45,23 @@ class DerivedStrHasGeneric(HasGeneric[str]):
 
 @dataclass
 class DerivedIntListHasGeneric(HasGeneric[list[int]]):
+    pass
+
+
+@dataclass
+class HasGenericContainers(Generic[T, U]):
+    items_list: list[T]
+    items_tuple: tuple[T]
+    items_set: set[U]
+
+
+@dataclass
+class DerivedIntFloat(HasGenericContainers[int, float]):
+    pass
+
+
+@dataclass
+class DerivedIntStr(HasGenericContainers[int, str]):
     pass
 
 
@@ -80,6 +98,16 @@ class DerivedIntListHasGeneric(HasGeneric[list[int]]):
             (
                 r"Cannot cast.*DerivedIntHasGeneric.*to.*DerivedIntListHasGeneric.*"
                 r"field 'x' cannot cast.*int.*to list.*int.*"
+            ),
+        ),
+        (DerivedIntFloat, DerivedIntFloat, True, None),
+        (
+            DerivedIntFloat,
+            DerivedIntStr,
+            False,
+            (
+                r"Cannot cast.*DerivedIntFloat.*DerivedIntStr.*"
+                r"Can't cast set.*float.*to set.*str.*float.*cannot cast to str"
             ),
         ),
     ),

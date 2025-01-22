@@ -1,14 +1,19 @@
 # Standard Library
+import sys
+import types
 from typing import (
     Any,
     Generic,
     Optional,
     TypeVar,
+    Union,
+    cast,
     get_args,
     get_origin,
     get_type_hints,
 )
 
+from boltons.typeutils import issubclass
 from typing_extensions import get_original_bases
 
 
@@ -67,20 +72,38 @@ def resolve_type(cls: type, attribute: str):
             f"The class '{cls.__name__}' does not have the '{attribute}' attribute"
         )
         raise ValueError(error_msg)
-    # And if it's a TypeVar....
-    if isinstance(field_type, TypeVar):
-        # Iterate through the bases to find the matching original type
+    return _resolve_generic_type(cls=cls, type_=field_type, attribute=attribute)
+
+
+def _resolve_generic_type(
+    cls: type, type_: Union[type, TypeVar], attribute: str
+) -> Union[type, TypeVar]:
+    origin = get_origin(type_)
+    if origin is not None:  # It's a generic like list, dict, etc.
+        resolved_args = tuple(
+            _resolve_generic_type(cls=cls, type_=arg, attribute=attribute)
+            for arg in get_args(type_)
+        )
+        major, minor, *_ = sys.version_info
+        if (major, minor) >= (3, 10) and issubclass(origin, types.UnionType):
+            return cast(type, Union[resolved_args])
+        return origin[resolved_args] if resolved_args else origin
+    elif isinstance(type_, TypeVar):  # Resolve TypeVar
+        # Resolve the TypeVar from the class's __orig_bases__
         for base in get_original_bases(cls):
-            origin = get_origin(base)
-            if origin is None:
+            base_origin = get_origin(base)
+            if base_origin is None:
                 raise ValueError(f"Found no origin for the base: {base.__name__}")
-            elif origin is Generic:
+            elif base_origin is Generic:
                 error_msg = f"The annotation for '{attribute}' has not been parametrized"
                 raise ValueError(error_msg)
             else:
                 type_args = get_args(base)
-                # Map TypeVars to their actual types
-                type_var_mapping = dict(zip(origin.__parameters__, type_args))
-                if field_type in type_var_mapping:
-                    return type_var_mapping[field_type]
-    return field_type
+                type_var_mapping = dict(zip(base_origin.__parameters__, type_args))
+                if type_ in type_var_mapping:
+                    return type_var_mapping[type_]
+        # Unresolved TypeVar
+        return type_
+    else:
+        # Non-generic type (e.g., int, str)
+        return type_
